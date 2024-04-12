@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class=" ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 设置移动端自适应 -->
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <title>后台管理系统</title>
+
+
+</head>
+<body>
+
+<div data-v="" class="login-box">
+
+    <div class="imgbox" data-v="">
+        <div class="bg_blue" data-v=""></div>
+        <ul class="circles" data-v="">
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+            <li data-v=""></li>
+
+        </ul>
+        <div class="w-full max-w-md" data-v="">
+            <div class="fz48 cof fw" data-v="">欢迎使用</div>
+            {#                <div class="fz14 cof" style="margin-top:10px;line-height:24px;" data-v="">#}
+            {#                    欢迎来到好玩俱乐部，在这里和志同道合的朋友一起分享有趣的故事，一起组织有趣的活动...#}
+            {#                </div>#}
+        </div>
+    </div>
+
+    <div class="login_box_f">
+        <div class="container clearfix account">
+
+            <h1><img class="logo_img" src="{% static 'img/favicon.ico' %}" alt="">管理员登录</h1>
+            <form id="login_form">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.user_name }}
+                    <span id="user_name_error" style="color: #D95C5CFF;: red;"></span>
+                </div>
+                <div class="mb-3">
+                    {{ form.password }}
+                    <span id="password_error" style="color: #D95C5CFF;"></span>
+                </div>
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-xs-7">
+                            {{ form.captcha }}
+                            <span id="captcha_error" style="color: #D95C5CFF;"></span>
+                        </div>
+                        <div class="col-xs-3>">
+                            <img id="image_captcha" src="" alt="加载失败\n请刷新网页">
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <center><input type="button" class="btn btn-primary" id="login-btn" value="登录"></center>
+        </div>
+    </div>
+
+</div>
+<script src="{% static 'js/jquery-3.7.1.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+<script>
+
+    $(function () {//页面框架加载完成之后，自动运行这里面的代码
+        Bind();//绑定事件函数
+        LoadCaptchaImage();//加载验证码
+    })
+
+    function Bind() {
+        $("#image_captcha").click(function () {
+            LoadCaptchaImage();//验证码图片点击时调用LoadCaptchaImage函数
+        })
+        $("#login-btn").click(function () {
+            RequestLogin();//点击登录按钮发送账号密码等数据请求登录
+        })
+    }
+
+    function LoadCaptchaImage() {
+        {#发送ajax请求，get请求验证码图片#}
+        $.ajax({
+            url: "/captcha_interface/",
+            type: "GET",
+            data: null,
+            success: function (response) { //response为服务器返回的图片数据
+                $("#image_captcha").attr("src", "data:image/png;base64," + response);//设置验证码
+            }
+
+        })
+    }
+
+    function ClearErrors() {
+        let fields = [// 定义数组存储标签和值
+            {label: $('#user_name_error'), value: $('#id_user_name').val().trim()},
+            {label: $('#password_error'), value: $('#id_password').val().trim()},
+            {label: $('#captcha_error'), value: $('#id_captcha').val().trim()}
+        ];
+        fields.forEach(function (field) {
+            field.label.text("");
+        });
+    }
+
+    function FormCheck() {
+        {#表单校验#}
+        let fields = [// 定义数组存储标签和值
+            {label: $('#user_name_error'), value: $('#id_user_name').val().trim()},
+            {label: $('#password_error'), value: $('#id_password').val().trim()},
+            {label: $('#captcha_error'), value: $('#id_captcha').val().trim()}
+        ];
+
+        // 遍历数组进行判断
+        fields.forEach(function (field) {
+            if (!field.value) {
+                field.label.text("请填写该字段");
+            } else {
+                field.label.text("");
+            }
+        });
+        return fields.every(function (field) {
+            return field.value
+        })
+    }
+
+    function RequestLogin() {
+        if (FormCheck()) {
+            // 表单通过验证，执行 AJAX 请求
+            ClearErrors();
+            $.ajax({
+                url: "/login_check/",
+                type: "POST",
+                data: $("#login_form").serialize(),
+                success: function (response) {
+                    window.location.href = response.redirect;
+                },
+                error: function (response) {
+                    if (response.responseJSON.errors) {
+                        ClearErrors();
+                        $.each(response.responseJSON.errors, function (key, value) {
+                            $("#id_" + key).next().text(value)
+                        });
+                        if (response.responseJSON.captcha === "error") {
+                            {#验证码错误自动刷新，验证码超时需手动刷新#}
+                            LoadCaptchaImage();
+                        }
+                    }
+
+                }
+            });
+        }
+    }
+
+</script>
+</body>
+
+</html>
