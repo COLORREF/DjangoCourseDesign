@@ -3,7 +3,7 @@
 确保已安装Django，可以使用命令（需要设置环境变量）：`pip list`，查看运行结果中是否有Django
 
 若未安装，使用命令 `pip install Django`安装，可以选择国内的镜像安装，清华大学镜像安装命令：
-`pip install Django-i https://pypi.tuna.tsinghua.edu.cn/simple`
+`pip install Django -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
 
 
