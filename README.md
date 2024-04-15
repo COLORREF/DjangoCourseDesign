@@ -5,7 +5,7 @@
 `pip install Django -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
 2、确保已安装PIL库，安装命令：`pip install pillow`,可以选择国内的镜像安装，清华大学镜像安装命令：
-`pip install install -i https://pypi.tuna.tsinghua.edu.cn/simple`
+`pip install pillow -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
 3、请将 ...CourseDesign/login/utils/captcha.py文件中的 `font_path = 'D:/Desktop/CODE/Python/Django/CourseDesign/login/static/微软雅黑.ttf'`路径修改为自己电脑上的绝对路径
 # 数据库说明
