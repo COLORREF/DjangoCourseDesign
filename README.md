@@ -7,7 +7,10 @@
 2、确保已安装PIL库，安装命令：`pip install pillow`,可以选择国内的镜像安装，清华大学镜像安装命令：
 `pip install pillow -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
-3、请将 ...CourseDesign/login/utils/captcha.py文件中的 `font_path = 'D:/Desktop/CODE/Python/Django/CourseDesign/login/static/微软雅黑.ttf'`路径修改为自己电脑上的绝对路径
+~~3、请将 ...CourseDesign/login/utils/captcha.py文件中的 `font_path = 'D:/Desktop/CODE/Python/Django/CourseDesign/login/static/微软雅黑.ttf'`路径修改为自己电脑上的绝对路径~~
+
+4、字体文件路径问题已修复，忽略第3点
+
 # 数据库说明
 
 数据库使用是Django默认的SQLite文件数据库数据库，方便项目转移和共享。无需进行其他额外数据库操作。
