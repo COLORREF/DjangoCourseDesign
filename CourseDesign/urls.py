@@ -3,12 +3,9 @@ from django.urls import path
 from login.views import login
 from login.views import backstageManagement
 
-# def faviconView(request):
-#     return
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('favicon.ico/',),
     path('', login.login),
     path('login/', login.login),
     path('login_check/', login.loginCheck),
