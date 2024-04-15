@@ -1,10 +1,11 @@
 import base64
 from io import BytesIO
-
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import random
+import os
 
-font_path = 'D:/Desktop/CODE/Python/Django/CourseDesign/login/static/微软雅黑.ttf'
+# 字体文件路径
+font_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../static/微软雅黑.ttf"))
 
 
 def rndChar():
