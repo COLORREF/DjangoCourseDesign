@@ -97,19 +97,21 @@
         })
     }
 
+    //加载验证码图片
     function LoadCaptchaImage() {
         {#发送ajax请求，get请求验证码图片#}
         $.ajax({
             url: "/captcha_interface/",
             type: "GET",
             data: null,
-            success: function (response) { //response为服务器返回的图片数据
+            success: function (response) { //response为服务器返回的图片base64编码
                 $("#image_captcha").attr("src", "data:image/png;base64," + response);//设置验证码
             }
 
         })
     }
 
+    //清除错误信息
     function ClearErrors() {
         let fields = [// 定义数组存储标签和值
             {label: $('#user_name_error'), value: $('#id_user_name').val().trim()},
@@ -121,6 +123,7 @@
         });
     }
 
+    //检查表单是否为空
     function FormCheck() {
         {#表单校验#}
         let fields = [// 定义数组存储标签和值
@@ -142,6 +145,7 @@
         })
     }
 
+    //发送登录数据
     function RequestLogin() {
         if (FormCheck()) {
             // 表单通过验证，执行 AJAX 请求
