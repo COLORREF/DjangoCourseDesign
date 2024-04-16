@@ -24,44 +24,52 @@ def loginCheck(request):
 
             # 验证码失效（已使用过）
             if session_captcha is None:
+                print("验证码失效")
                 errors = errorDict(form=form, fields_errors={"captcha": "验证码已失效"})
                 return JsonResponse({'errors': errors, 'captcha': 'failure'}, status=400)  # 返回包含错误信息的 JSON 数据
 
             # 验证码超时
             if not session_captcha or not cookie_captcha:
+                print("验证码超时")
                 errors = errorDict(form=form, fields_errors={"captcha": "验证码超时,请点击验证码刷新"})
                 return JsonResponse({'errors': errors, 'captcha': 'timeout'}, status=400)
 
             # 验证码正确
             if captcha.upper() == session_captcha.upper() == cookie_captcha.upper():
+                print("验证码正确")
                 request.session.pop('captcha')  # 从session表中删除的验证码，使验证码失效
                 try:
                     admin = models.Admin.objects.get(user_name=form.cleaned_data['user_name'])  # 根据用户名查找管理员数据
 
                 # 查找失败抛出异常，表示用户不存在
                 except models.Admin.DoesNotExist:
+                    print("用户不存在")
+                    errors = errorDict(form=form, fields_errors={"password": "用户名或密码错误"})
+                    return JsonResponse({'errors': errors}, status=401)
+
+                # 用户存在但密码错误
+                if form.cleaned_data['password'] != admin.password:
+                    print("用户存在但密码错误")
                     errors = errorDict(form=form, fields_errors={"password": "用户名或密码错误"})
                     return JsonResponse({'errors': errors}, status=401)
 
                 # 用户名和密码都正确
-                if form.cleaned_data['password'] == admin.password:
-                    # return redirect('/backstage_management/', permanent=True)  # 重定向到后台管理页面
-                    # 因为Ajax和CORS限制，不能直接使用redirect进行重定向,
-                    return JsonResponse({'redirect': 'backstage_management/'})  # 直接返回重定向的url
-
-                # 用户存在但密码错误
                 else:
-                    errors = errorDict(form=form, fields_errors={"password": "用户名或密码错误"})
-                    return JsonResponse({'errors': errors}, status=401)
+                    print("登录成功")
+                    # return redirect('/backstage_management/', permanent=True)  # 重定向到后台管理页面
+                    # 因为Ajax和CORS限制，不能直接使用redirect进行重定向
+                    return JsonResponse({'redirect': 'backstage_management/'})  # 直接返回重定向的url
 
             # 验证码错误
             else:
+                print("验证码错误")
                 errors = errorDict(form=form, fields_errors={"captcha": "验证码错误"})
                 return JsonResponse({'errors': errors, 'captcha': 'error'}, status=403)
 
         # 表单有空字段
         else:
             # 后端校验
+            print("表单有空字段")
             return JsonResponse({'errors': errorDict(form)}, status=400)
 
 
