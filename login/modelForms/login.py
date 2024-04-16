@@ -25,6 +25,6 @@ class LoginForm(BootstrapModelForm):
         return md5(self.cleaned_data['password'])  # 对密码进行md5加密
 
     def clean(self):
-        """登录不用验证用户名唯一性"""
+        """登录时不用验证用户名唯一性"""
         self._validate_unique = False
         return self.cleaned_data
