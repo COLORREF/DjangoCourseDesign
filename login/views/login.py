@@ -58,7 +58,7 @@ def loginCheck(request):
                     print("登录成功")
                     # return redirect('/backstage_management/', permanent=True)  # 重定向到后台管理页面
                     # 因为Ajax和CORS限制，不能直接使用redirect进行重定向
-                    return JsonResponse({'redirect': 'backstage_management/'})  # 直接返回重定向的url
+                    return JsonResponse({'redirect': 'backstage_management/file_management'})  # 直接返回重定向的url
 
             # 验证码错误
             else:

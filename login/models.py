@@ -8,9 +8,3 @@ class Admin(models.Model):
 
     def __str__(self):
         return self.user_name
-
-# class NormalUser(models.Model):
-#     """普通用户"""
-#     nickname = models.CharField(verbose_name="昵称", max_length=32)
-#     password = models.CharField(verbose_name="密码", max_length=64)
-#     uid = models

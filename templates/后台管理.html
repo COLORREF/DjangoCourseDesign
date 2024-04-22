@@ -1,23 +1,190 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="icon" href="{% static 'img/favicon.ico' %}">
-    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.css' %}">
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-</head>
-<body style="background: black;">
-<h1 style="color: #b6d4fe">登录成功</h1>
+{% extends 'base page.html' %}
+{% block title %}
+    订单管理
+{% endblock %}
 
-<script src="{% static 'js/jquery-3.7.1.js' %}"></script>
-<script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
-<script>
-    
-    
-    
-    
-</script>
-</body>
-</html>
+{% block content %}
+
+    <div class="container">
+
+        <div id="btn_add" class="btn btn-primary" style="margin-bottom: 10px">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+            上传文件
+        </div>
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {# 列表图标和文字 #}
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                文件列表
+            </div>
+
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>文件编号</th>
+{#                    {% for field in form %}#}
+{#                        <th>{{ field.label }}</th>#}
+{#                    {% endfor %}#}
+                    <th>操作</th>
+                </tr>
+                </thead>
+
+                <tbody>
+{#                {% for order in all_orders %}#}
+{#                    <tr uid="{{ order.id }}">#}
+{#                        <td>{{ order.oid }}</td>#}
+{#                        <td>{{ order.title }}</td>#}
+{#                        <td>{{ order.price }}</td>#}
+{#                        <td>{{ order.get_status_display }}</td>#}
+{#                        <td>{{ order.admin.user_name }}</td>#}
+{#                        <td>#}
+{#                            <div class="btn btn-primary btn-xs ">编辑</div>#}
+{#                            <div class="btn btn-danger btn-xs btn-delete" uid="{{ order.id }}">删除</div>#}
+{#                        </td>#}
+{#                    </tr>#}
+{#                {% endfor %}#}
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+
+
+    <div class="modal fade" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">新建订单</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form id="form_add">
+                        {% csrf_token %}
+                        {% for filed in form %}
+                            <div class="col-xs-6">
+                                <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                    <label>{{ filed.label }}</label>
+                                    {{ filed }}
+                                    <span class="error-msg" style="color: red;position: absolute;">
+                                        {{ filed.errors.0 }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </form>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="btn_save" type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定要删除!</h4>
+                <p style="margin: 10px 0;">
+                    正在进行订单删除操作！请确认是否要删除！
+                </p>
+                <p style="text-align: right;">
+                    <button id="btn_confirm_delete" type="button" class="btn btn-danger">确定删除</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        取消删除
+                    </button>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+{% block script %}
+
+    <script>
+        var DELETE_ID = -1;
+        $(function () {
+            bind();
+        })
+
+        function bind() {
+            $("#btn_add").click(function () {
+                $("#add_modal").modal("show");
+            });
+            $("#btn_save").click(saveData);
+            $(".btn-delete").click(delete_order);
+            $("#btn_confirm_delete").click(deleteDate);
+        }
+
+        function saveData() {
+            $(".error-msg").empty();  //发送请求前清空错误信息标签
+
+            $.ajax({
+                url: "/订单管理/添加订单/",
+                type: "POST",
+                data: $("#form_add").serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        alert("添加成功");
+                        $("#form_add")[0].reset();//清空表单
+                        $("#add_modal").modal("hide");
+                        location.reload();
+
+                    } else {
+                        //遍历错误信息数组，设置错误信息
+                        $.each(res.error, function (name, errorList) {
+                            $("#id_" + name).next().text(errorList[0]);
+                        })
+                    }
+                }
+            })
+        }
+
+        function delete_order() {
+            $("#delete_modal").modal("show");
+            DELETE_ID = $(this).attr("uid");
+        }
+
+        function deleteDate() {
+            $.ajax({
+                url: "/订单管理/删除订单/",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    uid: DELETE_ID
+                },
+                dataType: "JSON",
+                success: function (res) {
+                    if (res.status) {
+                        alert("删除成功");
+                        $("#delete_modal").modal("hide");//隐藏确认删除框
+
+                        $("tr[uid='" + DELETE_ID + "']").remove();//移除该项数据
+
+                        //重置DELETE_ID
+                        DELETE_ID = -1;
+
+
+                    } else {
+                        //删除失败
+                        alert(res.error);
+                    }
+                }
+            })
+        }
+
+
+    </script>
+
+{% endblock %}
