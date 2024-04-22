@@ -3,7 +3,7 @@ from django.http import HttpResponse
 
 
 def file_management(request):
-    return render(request, '后台管理.html')
+    return render(request, '文件管理.html')
 
 
 def write_off(request):
