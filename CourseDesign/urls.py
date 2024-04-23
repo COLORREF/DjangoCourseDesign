@@ -9,6 +9,11 @@ urlpatterns = [
     path('login/', login.login),
     path('login_check/', login.loginCheck),
     path('captcha_interface/', login.captcha_interface),
+
     path('backstage_management/file_management', backstageManagement.file_management),
+
+
+
+
     path('backstage_management/write_off', backstageManagement.write_off),
 ]
