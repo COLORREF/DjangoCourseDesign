@@ -15,6 +15,20 @@
                 <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                 新建员工
             </a>
+
+            <div style="float: right;width: 300px">
+                <form method="get">
+                    <div class="input-group">
+                        <input type="text" name="search_value" class="form-control" placeholder="搜索...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">
+                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+
         </div>
 
         {# 面板 #}
@@ -56,7 +70,8 @@
                         <td>{{ info.department.industry_title }}</td>
                         <td>
                             <a class="btn btn-primary btn-xs" href="/员工管理/{{ info.id }}/编辑员工/">编辑</a>
-                            <a class="btn btn-danger btn-xs" href="/员工管理/删除员工?employee_id={{ info.id }}#">删除</a>
+                            <a class="btn btn-danger btn-xs"
+                               href="/员工管理/删除员工?employee_id={{ info.id }}#">删除</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -64,6 +79,10 @@
                 </tbody>
             </table>
         </div>
+
+        <ul class="pagination">
+            {{ page_str }}
+        </ul>
     </div>
 
 {% endblock %}
