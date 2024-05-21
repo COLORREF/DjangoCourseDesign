@@ -1,59 +1,60 @@
 {% extends 'base page.html' %}
 {% block title %}
-    订单管理
+    部门管理
 {% endblock %}
 
 {% block content %}
 
+    {# 内容部分 #}
     <div class="container">
-
-        <div id="btn_add" class="btn btn-primary" style="margin-bottom: 10px">
-            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-            上传文件
+        {# 新建按钮 #}
+        <div style="margin-bottom: 10px">
+            {# 点击新建，跳转到添加页面，覆盖当前标签页 #}
+            <div id="btn_add" class="btn btn-primary" style="margin-bottom: 10px">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                新建部门
+            </div>
         </div>
 
-
+        {# 面板 #}
         <div class="panel panel-default">
             <div class="panel-heading">
-                {# 列表图标和文字 #}
+                {# 部门列表图标和文字 #}
                 <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-                文件列表
+                部门列表
             </div>
 
+            {# 表格 #}
             <table class="table table-bordered">
+                {# 表头 #}
                 <thead>
                 <tr>
-                    <th>文件编号</th>
-{#                    {% for field in form %}#}
-{#                        <th>{{ field.label }}</th>#}
-{#                    {% endfor %}#}
+                    <th>部门编号</th>
+                    {% for field in form %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
                     <th>操作</th>
                 </tr>
                 </thead>
-
+                {# 表身 #}
                 <tbody>
-{#                {% for order in all_orders %}#}
-{#                    <tr uid="{{ order.id }}">#}
-{#                        <td>{{ order.oid }}</td>#}
-{#                        <td>{{ order.title }}</td>#}
-{#                        <td>{{ order.price }}</td>#}
-{#                        <td>{{ order.get_status_display }}</td>#}
-{#                        <td>{{ order.admin.user_name }}</td>#}
-{#                        <td>#}
-{#                            <div class="btn btn-primary btn-xs ">编辑</div>#}
-{#                            <div class="btn btn-danger btn-xs btn-delete" uid="{{ order.id }}">删除</div>#}
-{#                        </td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
+                {# 遍历所有部门，创建每一行数据 #}
+                {% for department in departments %}
+                    <tr uid="{{ department.id }}">
+                        <th>{{ department.id }}</th>
+                        <td id="{{ department.id }}-name">{{ department.industry_title }}</td>
+                        {# 两个操作按钮 #}
+                        <td>
+                            <div class="btn btn-primary btn-xs btn-edit" uid={{ department.id }}>编辑</div>
+                            <div class="btn btn-danger btn-xs btn-delete" uid={{ department.id }}>删除</div>
+                        </td>
+                    </tr>
+                {% endfor %}
 
                 </tbody>
             </table>
         </div>
-
     </div>
-
-
-
 
     <div class="modal fade" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
@@ -61,7 +62,7 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">新建订单</h4>
+                    <h4 class="modal-title" id="myModalLabel">新建部门</h4>
                 </div>
                 <div class="modal-body">
 
@@ -108,12 +109,49 @@
 
     </div>
 
+    <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">修改部门</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form id="form_edit">
+                        {% csrf_token %}
+                        {% for filed in form %}
+                            <div class="col-xs-6">
+                                <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                    <label id="edit_title">{{ filed.label }}</label>
+                                    {{ filed }}
+                                    <span class="error-msg" style="color: red;position: absolute;">
+                                        {{ filed.errors.0 }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </form>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="btn_confirm_edit" type="button" class="btn btn-primary">保存修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
+
+
 {% block script %}
 
     <script>
         var DELETE_ID = -1;
+        var EDIT_ID = -1;
         $(function () {
             bind();
         })
@@ -121,17 +159,21 @@
         function bind() {
             $("#btn_add").click(function () {
                 $("#add_modal").modal("show");
+                $("input[name='industry_title']").val("");//清空原有的值
             });
             $("#btn_save").click(saveData);
-            $(".btn-delete").click(delete_order);
+            $(".btn-delete").click(delete_department);
             $("#btn_confirm_delete").click(deleteDate);
+            $(".btn-edit").click(edit_department);
+            $("#btn_confirm_edit").click(edit_save);
+
         }
 
         function saveData() {
             $(".error-msg").empty();  //发送请求前清空错误信息标签
 
             $.ajax({
-                url: "/订单管理/添加订单/",
+                url: "/部门管理/添加部门/",
                 type: "POST",
                 data: $("#form_add").serialize(),
                 success: function (res) {
@@ -151,14 +193,14 @@
             })
         }
 
-        function delete_order() {
+        function delete_department() {
             $("#delete_modal").modal("show");
             DELETE_ID = $(this).attr("uid");
         }
 
         function deleteDate() {
             $.ajax({
-                url: "/订单管理/删除订单/",
+                url: "/部门管理/删除部门/",
                 type: "POST",
                 data: {
                     csrfmiddlewaretoken: "{{ csrf_token }}",
@@ -169,13 +211,7 @@
                     if (res.status) {
                         alert("删除成功");
                         $("#delete_modal").modal("hide");//隐藏确认删除框
-
                         $("tr[uid='" + DELETE_ID + "']").remove();//移除该项数据
-
-                        //重置DELETE_ID
-                        DELETE_ID = -1;
-
-
                     } else {
                         //删除失败
                         alert(res.error);
@@ -184,7 +220,35 @@
             })
         }
 
+        function edit_department() {
+            $("#edit_modal").modal("show");
+            EDIT_ID = $(this).attr("uid");
+            $("#edit_title").next().val($("#" + EDIT_ID + "-name").html());
+        }
 
+        function edit_save() {
+            var newName = $("#edit_title").next().val();
+            $.ajax({
+                url: "/部门管理/编辑部门/",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    uid: EDIT_ID,
+                    newName: newName
+                },
+                success: function (res) {
+                    if (res.status) {
+                        alert("修改成功");
+                        $("#form_edit")[0].reset();//清空表单
+                        $("#edit_modal").modal("hide");
+                        $("#" + EDIT_ID + "-name").html(newName)
+                    } else {
+                        alert(res.error);//修改失败
+                    }
+                }
+            })
+        }
+        
     </script>
 
 {% endblock %}
